@@ -1,0 +1,10 @@
+
+the command
+## python3 server.py ../../config.yaml
+throws this error
+##python3 server.py ../../config.yaml
+!!!! OSError: [Errno 99] Cannot assign requested address
+
+when using the given remote port in config.yaml
+# server_ip: 130.225.104.138
+# server_port: 5555
