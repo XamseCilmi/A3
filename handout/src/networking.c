@@ -80,6 +80,18 @@ void get_signature(char* password, char* salt, hashdata_t* hash)
 {
     // Your code here. This function has been added as a guide, but feel free 
     // to add more, or work in other parts of the code
+    // Calculate the lengths of password and salt
+    size_t password_length = strlen(password);
+    size_t salt_length = strlen(salt);
+
+    // Allocate memory for the combined array
+    char *combined = (char *)malloc((password_length + salt_length + 1) * sizeof(char)); 
+    strcpy(combined, password);
+    strcat(combined + password_length, salt);
+
+    // Compute the hash of the combined password and salt
+    int combined_length = password_length + salt_length;
+    get_data_sha(combined, *hash, combined_length, SHA256_HASH_SIZE);
 }
 
 /*
