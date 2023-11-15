@@ -98,10 +98,48 @@ void get_signature(char* password, char* salt, hashdata_t* hash)
  * Register a new user with a server by sending the username and signature to 
  * the server
  */
-void register_user(char* username, char* password, char* salt)
-{
-    // Your code here. This function has been added as a guide, but feel free 
-    // to add more, or work in other parts of the code
+void register_user(char* username, char* password, char* salt) {
+    hashdata_t hash;
+    get_signature(password, salt, &hash);
+
+    // Creating socket with help of compsys open client helper function
+    int sock = compsys_helper_open_clientfd(server_ip, server_port);
+    if (sock == -1) {
+        printf("Connection failed\n");
+    return;
+    }
+    else if (sock == -2) {
+        printf("Connection failed (getaddrinfo error).\n");
+    return;
+    }
+    
+    // Setup for user registration request
+    char request[REQUEST_HEADER_LEN];
+    memset(request, 0, REQUEST_HEADER_LEN);
+    strcpy(request, username);
+    memcpy(request + USERNAME_LEN, hash, SHA256_HASH_SIZE);
+
+    // Send user registration request to server
+    send(sock, request, REQUEST_HEADER_LEN, 0);
+
+    // Receive server response
+    char server_response[REQUEST_BODY_LEN];
+    recv(sock, server_response, REQUEST_BODY_LEN, 0);
+
+    // Reading server response ->
+    // Calculate place for message (Section 3.4 explains format of server response)
+    int offset = 0;
+    offset += sizeof(int); 
+    offset += sizeof(int); 
+    offset += sizeof(int); 
+    offset += sizeof(int); 
+    offset += SHA256_HASH_SIZE; 
+    offset += SHA256_HASH_SIZE;
+
+    char* message = server_response + offset;
+    printf("Server response: %s\n", message);
+
+    close(sock);
 }
 
 /*
